@@ -21,6 +21,7 @@
       :slots="_component.slots"
       :scoped-slots="_component.scopedSlots"
       :on="_component.on"
+      :crudForm="formData"
       :children="_component.children"
       :scope="{form:formData,mode:$attrs.formMode}"
       v-bind="_component"

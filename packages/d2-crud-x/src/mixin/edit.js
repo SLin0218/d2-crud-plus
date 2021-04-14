@@ -5,12 +5,21 @@ export default {
        * @description 被编辑行的索引
        */
       editIndex: 0,
+      /**
+       * 默认选中第一个标签
+       */
+      activeTabName: this.getFirstTabName(),
       lineEditor: {
         active: false
       }
     }
   },
   methods: {
+    getFirstTabName () {
+      if (this.formOptions.tabs && this.formOptions.tabs.length > 0) {
+        return this.formOptions.tabs[0].name
+      }
+    },
     /**
      * @description 编辑行数据
      * @param {Number} index 行所在索引

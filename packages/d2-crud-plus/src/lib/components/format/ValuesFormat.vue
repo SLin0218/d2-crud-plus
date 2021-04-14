@@ -71,13 +71,15 @@ export default {
     },
     // 展示类型【text, tag】
     type: {
-      default: 'tag' // 可选【text,tag】
+      default: 'text' // 可选【text,tag】
     },
     // valuechange 是否reload
     changeReload: {
       default: undefined
+    },
+    scope: {
+      type: Object
     }
-
   },
   data () {
     return {}

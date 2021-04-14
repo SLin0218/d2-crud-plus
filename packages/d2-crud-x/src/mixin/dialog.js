@@ -249,7 +249,9 @@ export default {
      * @description 保存行数据
      */
     handleDialogSave () {
-      this.$refs.form.validate((valid) => {
+      const formRef = this.formOptions.showTabs && this.formMode === 'edit'
+        ? this.$refs['tab-form'][0] : this.$refs.form
+      formRef.validate((valid) => {
         if (!valid) {
           return false
         }

@@ -205,7 +205,7 @@
         <button v-if="formOptions.fullscreen!=null" type="button"  class="el-dialog__headerbtn fullscreen" @click="formOptions.fullscreen = !formOptions.fullscreen" ><i class="el-dialog__close el-icon el-icon-full-screen"/></button>
       </template>
       <el-form
-        v-if="isFormShow"
+        v-if="isFormShow && (!formOptions.showTabs ||  formMode !== 'edit')"
         ref="form"
         :model="formData"
         :rules="handleFormRulesMode()"
@@ -284,6 +284,108 @@
           <slot name="FormBodyAppendSlot" :mode="formMode" :form="formData" :row="formDataStorage"/>
         </div>
       </el-form>
+      <el-tabs
+        v-if="formOptions.showTabs && formMode === 'edit'"
+        v-model="activeTabName"
+        :type="formOptions.tabsType"
+        @tab-click="formOptions.handleTabClick"
+      >
+        <el-tab-pane
+          v-for="(tab, index) in formOptions.tabs"
+          :key="index"
+          :label="tab.label"
+          :name="tab.name"
+        >
+          <component
+            v-if="tab.name !== 'edit'"
+            :is="tab.component.name"
+            v-bind="tab.component.props"
+            :mode="formMode"
+            :form="formData"
+            :row="formDataStorage"
+          />
+          <el-form
+            v-if="isFormShow && tab.name === 'edit'"
+            ref="tab-form"
+            :model="formData"
+            :rules="handleFormRulesMode()"
+            :fullscreen="formOptions.fullscreen"
+            :formMode="formMode"
+            v-bind="formOptions"
+          >
+            <el-row v-bind="formOptions" >
+              <template v-for="(item,key, index) in formTemplateStorage" >
+                <el-col :key="index"
+                  v-if="getTemplateComponentAttr(item,'show', true,getContext(key))"
+                  :span="getTemplateComponentAttr(item,'span', 24)"
+                  :offset="getTemplateComponentAttr(item,'offset', 0)"
+                >
+                  <d2-form-item
+                    :template="item"
+                    :colKey="key"
+                    :formData="formData"
+                    :ref="'form_item_'+key"
+                    :formMode="formMode"
+                    :getColumn="getFormComponentRef"
+                    @form-data-change="handleFormDataChange"
+                    @form-component-ready="handleFormComponentReady"
+                    @form-component-custom-event="handleFormComponentCustomEvent"
+                  >
+                    <template :slot="key+'FormSlot'">
+                        <slot :name="key+'FormSlot'" :form="formData" :mode="formMode" :row="formDataStorage"/>
+                    </template>
+                    <template :slot="key+'HelperSlot'">
+                        <slot :name="key+'HelperSlot'" :form="formData" :mode="formMode" :row="formDataStorage"/>
+                    </template>
+                  </d2-form-item>
+                </el-col>
+              </template>
+            </el-row>
+
+            <el-collapse v-if="formTemplateGroupStorage" v-model="formGroupsActive" :accordion="formTemplateGroupStorage.accordion"    >
+              <template v-for="(group,groupKey) in formTemplateGroupStorage.groups"   >
+                <el-collapse-item :key="groupKey" :name="groupKey" :disabled="group.disabled"  v-if="getAttribute(group,'show', true,{mode:formMode,form:formData})">
+                  <template slot="title" >
+                    <h3 v-if="!$scopedSlots[groupKey+'GroupTitleSlot']" class="group-title" ><i v-if="group.icon" class="header-icon" :class="group.icon"/> {{group.title}}</h3>
+                    <slot :name="groupKey+'GroupTitleSlot'" :groupKey="groupKey" :group="group"/>
+                  </template>
+                  <el-row v-bind="formOptions">
+                    <template v-for="(item,key, index) in group.columns" >
+                      <el-col :key="index"
+                              v-if="getTemplateComponentAttr(item,'show', true,getContext(key))"
+                              :span="getTemplateComponentAttr(item,'span', 24)"
+                              :offset="getTemplateComponentAttr(item,'offset', 0)"
+                      >
+                        <d2-form-item
+                          :template="item"
+                          :colKey="key"
+                          :formData="formData"
+                          :ref="'form_item_'+key"
+                          :formMode="formMode"
+                          :getColumn="getFormComponentRef"
+                          @form-data-change="handleFormDataChange"
+                          @form-component-ready="handleFormComponentReady"
+                          @form-component-custom-event="handleFormComponentCustomEvent"
+                        >
+                          <template :slot="key+'FormSlot'">
+                            <slot :name="key+'FormSlot'" :form="formData" :row="formDataStorage"/>
+                          </template>
+                          <template :slot="key+'HelperSlot'">
+                            <slot :name="key+'HelperSlot'" :form="formData" :row="formDataStorage"/>
+                          </template>
+                        </d2-form-item>
+                      </el-col>
+                    </template>
+                  </el-row>
+                </el-collapse-item>
+              </template>
+            </el-collapse>
+            <div class="form-body-append">
+              <slot name="FormBodyAppendSlot" :mode="formMode" :form="formData" :row="formDataStorage"/>
+            </div>
+          </el-form>
+        </el-tab-pane>
+      </el-tabs>
       <div class="d2p-form-footer" :slot="isFormDrawer?'default':'footer'" >
         <slot name="FormFooterSlot" :mode="formMode" :data="formData" :form="formData" :row="formDataStorage" />
         <el-button v-if="getAttribute(formOptions,'saveButtonShow', true)"

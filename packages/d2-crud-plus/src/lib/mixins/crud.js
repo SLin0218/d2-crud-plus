@@ -67,7 +67,11 @@ export default {
           gutter: 20,
           fullscreen: false,
           saveRemind: true,
-          updateTableDataAfterEdit: false // 是否在更新和添加数据后直接更新表格数据，默认false，因为提交到服务端后，将会自动刷新数据
+          updateTableDataAfterEdit: false, // 是否在更新和添加数据后直接更新表格数据，默认false，因为提交到服务端后，将会自动刷新数据
+          showTabs: false,
+          tabsType: undefined,
+          handleTabClick: () => {},
+          tabs: []
         },
         options: {
           rowKey: 'id',
